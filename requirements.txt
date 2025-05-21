@@ -1,0 +1,7 @@
+Django>=5.2,<6.0
+djangorestframework      # optional for API views
+django-environ           # .env support
+dj-database-url          # parse DATABASE_URL
+psycopg2-binary          # Postgres driver
+gunicorn                 # WSGI server
+sendgrid                 # email receipts
