@@ -1,33 +1,271 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Donate</title>
-    <script src="https://checkout.sky.blackbaud.com/checkout.js"></script>
+  <meta charset="UTF-8">
+  <title>Give Today</title>
+
+  <!-- BBMS Checkout SDK -->
+  <script src='https://payments.blackbaud.com/Checkout/bbCheckout.2.0.js'></script>
+
+  <style>
+    /* Container */
+    .donation-container {
+      max-width: 480px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+      font-family: sans-serif;
+    }
+
+    .donation-container h1 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      font-size: 1.6rem;
+      color: #333;
+    }
+
+    /* Two-column rows */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    /* Full-width rows */
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.25rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: #555;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    select {
+      width: 100%;
+      padding: 0.5rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    /* Recurrence toggle */
+    #recurring-info {
+        display: none;
+        font-size: .75em;
+        font-style: italic;
+        padding-left: 20px;
+    }
+
+    /* Donate button */
+    #donate-btn {
+      width: 100%;
+      padding: 0.75rem;
+      font-size: 1.1rem;
+      background: #fdb913;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+    #donate-btn:hover {
+      background: #F4B414;
+    }
+  </style>
 </head>
+
 <body>
-    <h1>Make a Donation</h1>
-    <label for="amount">Amount:</label>
-    <select id="amount">
-        <option value="2500">$25</option>
-        <option value="5000">$50</option>
-        <option value="10000">$100</option>
-    </select>
+  <div class="donation-container">
+    <h1>Support Fort Hays State</h1>
 
-    <button id="donate-button">Donate</button>
+    <form id="donation-form" onsubmit="return false;">
+      <!-- Designation & Amount -->
+        <div class="form-group">
+          <label for="designation">Designation</label>
+          <input id="designation" name="designation" type="text" placeholder="Where to make your impact" required>
+        </div>
+        <div class="form-group">
+          <label for="amount">Amount</label>
+          <select id="amount" name="amount">
+            <option value="25">$25</option>
+            <option value="50" selected>$50</option>
+            <option value="100">$100</option>
+            <option value="250">$250</option>
+          </select>
+        </div>
 
-    <script>
-        document.getElementById('donate-button').onclick = function () {
-            var amount = parseInt(document.getElementById('amount').value, 10);
 
-            SkyApi.Checkout.checkout({
-                publicKey: "{{ BBMS_PUBLIC_KEY }}",
-                merchantAccountId: "{{ BBMS_MERCHANT_ID }}",
-                amount: amount,
-                currency: "USD",
-                returnUrl: "{%  url 'donate_finalize' %}"
-            });
+      <!-- Donor Contact -->
+      <div class="form-row">
+          <div class="form-group">
+            <label for="first-name">First Name</label>
+            <input id="first-name" name="first-name" type="text" placeholder="Jane" required>
+          </div>
+          <div class="form-group">
+            <label for="last-name">First Name</label>
+            <input id="last-name" name="last-name" type="text" placeholder="Doe" required>
+          </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" placeholder="jane@example.com" required>
+        </div>
+        <div class="form-group">
+          <label for="phone">Phone</label>
+          <input id="phone" name="phone" type="tel" placeholder="(123) 456-7890">
+        </div>
+      </div>
+      <div class="form-row">
+          <div class="form-group">
+            <label for="address">Address</label>
+            <input id="address" name="address" type="text" placeholder="123 Main St">
+          </div>
+          <div class="form-group">
+            <label for="city">City</label>
+            <input id="city" name="city" type="text" placeholder="City">
+          </div>
+      </div>
+      <div class="form-row">
+          <div class="form-group">
+            <label for="state">State</label>
+            <input id="state" name="state" type="text" placeholder="State">
+          </div>
+          <div class="form-group">
+            <label for="zip">Zip Code</label>
+            <input id="zip" name="zip" type="text" placeholder="Zip">
+          </div>
+      </div>
+      <!-- Recurring Gift -->
+      <div class="form-group">
+        <label>
+          <input id="recurring" name="recurring" type="checkbox">
+          Make this a monthly gift
+        </label>
+        <div id="recurring-info">
+            <p>Your gift will be made on the 20th of each month</p>
+        </div>
+      </div>
+
+      <!-- Donate button -->
+      <button id="donate-btn">Donate</button>
+    </form>
+  </div>
+
+  <script>
+      /* global SkyApi */
+    // toggle frequency options
+    const recBox = document.getElementById('recurring');
+    const freqGroup = document.getElementById('recurring-info');
+    recBox.addEventListener('change', () => {
+      freqGroup.style.display = recBox.checked ? 'block' : 'none';
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('donate-btn').addEventListener('click', () => {
+      const amount       = parseFloat(document.getElementById('amount').value);
+      const designation  = document.getElementById('designation').value;
+      const first_name   = document.getElementById('first-name').value;
+      const last_name    = document.getElementById('last-name').value;
+      const email        = document.getElementById('email').value;
+      const phone        = document.getElementById('phone').value;
+      const address      = document.getElementById('address').value;
+      const city         = document.getElementById('city').value;
+      const state        = document.getElementById('state').value;
+      const zip          = document.getElementById('zip').value;
+      const isRecurring  = recBox.checked;
+      const frequency    = 'MONTHLY';
+
+      // assemble metadata for your backend
+      const options = {
+          'key':         "{{ BBMS_PUBLIC_KEY }}",
+          'payment_configuration_id': "{{ BBMS_MERCHANT_ID }}",
+          'amount':            amount,
+          'transaction_category':       "donation",
+          'billing_address_first_name': first_name,
+          'billing_address_last_name': last_name,
+          'billing_address_email':    email,
+          'billing_address_phone':    phone,
+          'billing_address_line':  address,
+          'billing_address_city':           city,
+          'billing_address_state': state,
+          'billing_address_post_code':    zip,
+          'is_name_required': true,
+          'is_name_visible': true,
+
+          metadata: {
+            'designation':    designation,
+            'returnUrl':         "{% url 'donate_finalize' %}",
+          }
         };
-    </script>
+
+      if (isRecurring) {
+        options.recurrence = { frequency: frequency };
+      }
+      console.log(options)
+      // send payload to your test endpoint
+        fetch("{% url 'test_send_email' %}", {
+          method: "POST",
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(options)
+        })
+          .then(response => {
+              if (!response.ok) {
+                // Try to read the JSON error, or at least the text
+                return response.json()
+                  .catch(() => response.text())
+                  .then(err => Promise.reject(err));
+              }
+              return response.json();
+            })
+          .then(json => console.log("SendGrid test response:", json))
+          .catch(err => console.error("SendGrid test error:", err));
+
+        Blackbaud_OpenPaymentForm(options);
+
+        document.addEventListener('checkoutComplete', (e) => {
+            const token = e.detail.transactionToken;
+            console.log('✅ Received transaction token:', token);
+            // Complete transaction
+            fetch("/donate_finalize", {
+                method: "POST",
+                headers: { "Content-Type": "application/json"},
+                body: JSON.stringify({ checkoutToken: token})
+            })
+                .then(r => r.json())
+                .then(console.log)
+                .catch(console.error);
+            // Sendgrid Email
+            fetch("{% url 'test_send_email' %}", {
+              method: "POST",
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify(options)
+            })
+              .then(response => {
+                  if (!response.ok) {
+                    // Try to read the JSON error, or at least the text
+                    return response.json()
+                      .catch(() => response.text())
+                      .then(err => Promise.reject(err));
+                  }
+                  return response.json();
+                })
+              .then(json => console.log("SendGrid test response:", json))
+              .catch(err => console.error("SendGrid test error:", err));
+});
+
+        });
+    });
+  </script>
 </body>
 </html>
