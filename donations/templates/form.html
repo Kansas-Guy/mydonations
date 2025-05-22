@@ -3,9 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <title>Donate</title>
+    <script src="https://checkout.sky.blackbaud.com/checkout.js"></script>
 </head>
 <body>
-    <h1>Hello Donation Form</h1>
-    <p>If you see this message, your deploy flow is working correctly.</p>
+    <h1>Make a Donation</h1>
+    <label for="amount">Amount:</label>
+    <select id="amount">
+        <option value="2500">$25</option>
+        <option value="5000">$50</option>
+        <option value="10000">$100</option>
+    </select>
+
+    <button id="donate-button">Donate</button>
+
+    <script>
+        document.getElementById('donate-button').onclick = function () {
+            var amount = parseInt(document.getElementById('amount').value, 10);
+
+            SkyApi.Checkout.checkout({
+                publicKey: "{{ BBMS_PUBLIC_KEY }}",
+                merchantAccountId: "{{ BBMS_MERCHANT_ID }}",
+                amount: amount,
+                currency: "USD",
+                returnUrl: "{%  url 'donate_finalize' %}"
+            });
+        };
+    </script>
 </body>
 </html>

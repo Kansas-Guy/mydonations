@@ -4,25 +4,30 @@ import dj_database_url
 
 from pathlib import Path
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+# Build paths inside the project like this:
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# Initialize environment variables
+env = environ.Env(
+    DEBUG=(bool, False)
+)
+# Read the .env file from project root
+env.read_env(os.path.join(BASE_DIR, '.env'))
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
+# SECURITY
+SECRET_KEY = env('SECRET_KEY')  # Must be set in .env
+DEBUG = env('DEBUG')
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-^1ky9w8ssrtj-m36v#4&s$$gwkw2-2wg(%fh*y3@mok--o+-ag'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = ['https://mydonations-7bb26315ee30.herokuapp.com/','locahost']
+ALLOWED_HOSTS = ['https://mydonations-7bb26315ee30.herokuapp.com/','127.0.0.1']
 
 DATABASES = {
     'default': dj_database_url.config(default=env('DATABASE_URL'))
 }
-# Application definition
+
+BBMS_PUBLIC_KEY= env('BBMS_PUBLIC_KEY')
+BBMS_MERCHANT_ID= env('BBMS_MERCHANT_ID')
+BBMS_SECRET_KEY= env('BBMS_SECRET_KEY')
+SENDGRID_API_KEY= env('SENDGRID_API_KEY')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -32,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'donations.apps.DonationsConfig',
-    'donations',
+
 ]
 
 MIDDLEWARE = [
@@ -50,7 +55,7 @@ ROOT_URLCONF = 'mydonations.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'donations/templates']
+        'DIRS': []
         ,
         'APP_DIRS': True,
         'OPTIONS': {
@@ -70,11 +75,16 @@ WSGI_APPLICATION = 'mydonations.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(default=env('DATABASE_URL'))
 }
+
+# Local development fallback (SQLite)
+# If DATABASE_URL is not set, use SQLite for quick local testing
+if not env('DATABASE_URL', default=None):
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
 
 
 # Password validation
