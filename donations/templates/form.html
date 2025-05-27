@@ -200,11 +200,11 @@
           'billing_address_city':           city,
           'billing_address_state': state,
           'billing_address_post_code':    zip,
+          'note': designation,
           'is_name_required': true,
           'is_name_visible': true,
 
           metadata: {
-            'designation':    designation,
             'returnUrl':         "{% url 'donate_finalize' %}",
           }
         };
@@ -213,23 +213,6 @@
         options.recurrence = { frequency: frequency };
       }
       console.log(options)
-      // send payload to your test endpoint
-        fetch("{% url 'test_send_email' %}", {
-          method: "POST",
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify(options)
-        })
-          .then(response => {
-              if (!response.ok) {
-                // Try to read the JSON error, or at least the text
-                return response.json()
-                  .catch(() => response.text())
-                  .then(err => Promise.reject(err));
-              }
-              return response.json();
-            })
-          .then(json => console.log("SendGrid test response:", json))
-          .catch(err => console.error("SendGrid test error:", err));
 
         Blackbaud_OpenPaymentForm(options);
 
@@ -240,11 +223,26 @@
             fetch("/donate_finalize", {
                 method: "POST",
                 headers: { "Content-Type": "application/json"},
-                body: JSON.stringify({ checkoutToken: token})
+                body: JSON.stringify({ checkoutToken: token,
+                amount: options.amount})
             })
-                .then(r => r.json())
-                .then(console.log)
-                .catch(console.error);
+                .then(response => {
+                  if (!response.ok) {
+                    // Try to parse JSON error, or fallback to text
+                    return response.json()
+                      .catch(() => response.text())
+                      .then(err => Promise.reject(err));
+                  }
+                  return response.json();
+                })
+                .then(json => {
+                  console.log("Charge complete:", json);
+                  // show thank-you message…
+                })
+                .catch(err => {
+                  console.error("Error finalizing donation:", err);
+                  // show an error to the donor…
+                });
             // Sendgrid Email
             fetch("{% url 'test_send_email' %}", {
               method: "POST",
