@@ -12,12 +12,14 @@ class Donor(models.Model):
 
 class Donation(models.Model):
     # Donor Information
-    donor_name = models.CharField(max_length=50 )
+    first_name = models.CharField(max_length=30, default='John')
+    last_name = models.CharField(max_length=30, default='Doe')
     email = models.EmailField(max_length=50)
     phone = models.CharField(max_length=20)
 
     #Donation Information
-    designation = models.CharField(max_length=50, null=True, default="Greatest Need")
+    designation = models.CharField(max_length=50, null=True,)
+    amount_dollars = models.DecimalField(max_digits=15, decimal_places=2)
     amount_cents = models.IntegerField()
     net_amount_cents = models.IntegerField(null=True, blank=True)
     total_fees_cents = models.IntegerField(null=True, blank=True)
@@ -27,6 +29,7 @@ class Donation(models.Model):
     transaction_category = models.CharField(max_length=50, default="donation")
 
     # Billing info
+    donor_name = models.CharField(max_length=50)
     billing_street = models.TextField(null=True, blank=True)
     billing_city = models.CharField(max_length=100, null=True, blank=True)
     billing_state = models.CharField(max_length=100, null=True, blank=True)

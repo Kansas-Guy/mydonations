@@ -10,17 +10,20 @@ class DonorAdmin(admin.ModelAdmin):
 @admin.register(Donation)
 class DonationAdmin(admin.ModelAdmin):
     list_display = (
-        'donor_name',
-        'amount_cents',
+        'first_name',
+        'last_name',
+        'amount_dollars',
         'designation',
         'transaction_date',
-        'transaction_category',
     )
     list_filter = (
-        'currency',
-        'transaction_category',
+        'first_name',
+        'last_name',
+        'amount_dollars',
         'transaction_date',
     )
     search_fields = (
-        'donor_name',
+        'first_name',
+        'last_name',
+        'designation'
     )

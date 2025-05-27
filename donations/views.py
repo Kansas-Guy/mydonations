@@ -37,6 +37,9 @@ def donate_finalize(request):
     access_token = get_bbms_access_token()
 
     designation = data.get("designation")
+    first_name = data.get("first_name")
+    last_name = data.get("last_name")
+    amount_dollars = data.get("amount")
 
     # Build the BBMS API Call
     url = "https://api.sky.blackbaud.com/payments/v1/checkout/transaction"
@@ -94,11 +97,14 @@ def donate_finalize(request):
 
     # 5) Create the Donation record
     donation = Donation.objects.create(
+        first_name=first_name,
+        last_name=last_name,
         donor_name=card.get("name"),
         email= email,
         phone = phone,
         designation = designation,
         transaction_id=transaction_id,
+        amount_dollars = amount_dollars,
         amount_cents=amount_cents,
         net_amount_cents=net_amount_cents,
         total_fees_cents=total_fees_cents,

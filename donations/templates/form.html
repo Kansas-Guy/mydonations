@@ -225,7 +225,10 @@
                 headers: { "Content-Type": "application/json"},
                 body: JSON.stringify({ checkoutToken: token,
                 amount: options.amount,
-                designation: designation})
+                designation: designation,
+                first_name: first_name,
+                last_name: last_name,
+                })
             })
                 .then(response => {
                   if (!response.ok) {
