@@ -1,0 +1,30 @@
+{
+  "id": "com.yourorg.declineEventTile",
+  "title": "Decline Event",
+  "description": "Quickly mark that this constituent will not attend an event",
+  "resources": [
+    {
+      "path": "/",
+      "url": "https://mydonations-7bb26315ee30.herokuapp.com/sky-addin"
+    }
+  ],
+  "extensionPoints": [
+    {
+      "location": "constituent-tile-dashboard",
+      "type": "tile"
+    }
+  ],
+  "supportsSSO": true,
+"scopes": [
+   "eventapi.events.read",
+   "eventapi.participants.create"
+ ],
+"oauth2": {
+  "clientId":   "3b9c4ffd-ed8c-4682-9e23-43032fc886a5",
+  "authorizeUrl": "https://oauth2.sky.blackbaud.com/connect/authorize",
+  "tokenUrl":     "https://oauth2.sky.blackbaud.com/connect/token",
+   "scopes":     [
+   "eventapi.events.read",
+   "eventapi.participants.create"
+   ]
+ }
