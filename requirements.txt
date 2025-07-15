@@ -5,3 +5,4 @@ dj-database-url          # parse DATABASE_URL
 psycopg2-binary          # Postgres driver
 gunicorn                 # WSGI server
 sendgrid                 # email receipts
+requests
