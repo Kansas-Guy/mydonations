@@ -35,7 +35,7 @@ BB_REFRESH_TOKEN = env('BB_REFRESH_TOKEN')
 SENDGRID_API_KEY= env('SENDGRID_API_KEY')
 SENDGRID_RECEIPT_TEMPLATE_ID= env('SENDGRID_RECEIPT_TEMPLATE_ID')
 DEFAULT_FROM_EMAIL = 'foundationmail@fhsu.edu'
-BB_REDIRECT_URI = env('BB_REDIRECT_URI')
+BB_REDIRECT_URI = 'https://mydonations-7bb26315ee30.herokuapp.com/skyapi/oauth/callback'
 
 INSTALLED_APPS = [
     'django.contrib.admin',

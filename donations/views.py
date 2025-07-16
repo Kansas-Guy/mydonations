@@ -49,6 +49,7 @@ def donate_finalize(request):
         "Bb-Api-Subscription-Key": settings.BB_API_SUBSCRIPTION,
     }
 
+
     payload = {
         "authorization_token": token,
         # transaction call must be in cents
