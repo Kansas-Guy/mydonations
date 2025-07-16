@@ -2,7 +2,7 @@ from django.urls import path
 from . import views
 from django.views.generic import TemplateView
 
-from .skyapi_endpoints import skyapi_authorize, skyapi_callback
+from .skyapi_endpoints import skyapi_authorize, skyapi_callback, skyapi_token
 
 urlpatterns = [
     path('', views.donate_form, name='donate_form'),
@@ -12,4 +12,5 @@ urlpatterns = [
     path('sky-addin', TemplateView.as_view(template_name='sky-addin/index.html')),
     path('skyapi/authorize', skyapi_authorize, name='skyapi_authorize'),
     path('skyapi/oath/callback', skyapi_callback, name='skyapi_callback'),
+    path('skyapi/token', skyapi_token, name='sky_token'),
 ]

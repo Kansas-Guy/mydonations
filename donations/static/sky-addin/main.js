@@ -6,14 +6,40 @@
         console.log('Sky Add‑in init args:', args);
         console.log('Context payload:', args.context);
 
+        args.ready({ showUI: true, title: 'Decline Event' });
         // —————————————————————————————
         // 2) SSO: Fetch the user‑identity token for your backend
         const userIdentityToken = await client.getUserIdentityToken();
+        const recordId = args.context.recordId;
         // envId lets your backend scope consent to the right BB environment
         const envid = args.envId;
 
-        // 3) Tell NXT you’re ready
-        args.ready({ showUI: true, title: 'Decline Event' });
+        const SKY_OAUTH_CLIENT_ID   = '3b9c4ffd-ed8c-4682-9e23-43032fc886a5';
+        const SKY_OAUTH_REDIRECT_URI = 'https://fhsufoundation.com/skyapi/oauth/callback';
+
+        await maybeAuthenticateWithSkyApi(identityToken, args.envId);
+
+        async function maybeAuthenticateWithSkyApi(userIdentityToken, envId) {
+  // 1) ask your backend if it already has a good token
+          let resp = await fetch('/skyapi/token');
+          if (resp.status === 200) return;
+
+          // 2) otherwise, open the popup to your /skyapi/authorize
+          const popup = window.open(
+            `/skyapi/authorize?token=${identityToken}&envid=${envId}`,
+            '_blank','width=600,height=500'
+          );
+          // 3) wait for it to close
+          await new Promise(r => {
+            const iv = setInterval(() => {
+              if (popup.closed) {
+                clearInterval(iv);
+                r();
+              }
+            }, 100);
+          });
+          // 4) now your backend has exchanged the code and stored the token
+        }
 
         // 4) State for your SKY API token (once we fetch it)
         let skyApiToken = null;
@@ -32,8 +58,8 @@
             const url =
              'https://oauth2.sky.blackbaud.com/authorization?'
                + `response_type=code`
-               + `&client_id=${encodeURIComponent(YOUR_CLIENT_ID)}`
-               + `&redirect_uri=${encodeURIComponent(YOUR_REDIRECT_URI)}`
+               + `&client_id=${encodeURIComponent(SKY_OAUTH_CLIENT_ID)}`
+               + `&redirect_uri=${encodeURIComponent(SKY_OAUTH_REDIRECT_URI)}`
                + `&state=${encodeURIComponent(state)}`
                + `&environment_id=${encodeURIComponent(envid)}`;
 

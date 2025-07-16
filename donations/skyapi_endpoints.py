@@ -1,4 +1,5 @@
 import uuid
+import time
 import base64
 import requests
 from django.conf import settings
@@ -29,6 +30,7 @@ def skyapi_authorize(request):
         'client_id': settings.BB_CLIENT_ID,
         'redirect_uri': redirect_uri,
         'state': state,
+
     }
     if env_id:
         params['environment_id'] = env_id
@@ -80,8 +82,10 @@ def skyapi_callback(request):
         '</body></html>'
     )
 
-# ===== URL Patterns =====
-urlpatterns = [
-    path('skyapi/authorize', skyapi_authorize, name='skyapi_authorize'),
-    path('skyapi/oauth/callback', skyapi_callback, name='skyapi_callback'),
-]
+def skyapi_token(request):
+    token = request.session.get('sky_api_token')
+    expires = request.session.get('sky_token_expires', 0)
+    if not token or expires < time.time():
+        return HttpResponse('Unauthorized', status=401)
+    return HttpResponse(token)
+
