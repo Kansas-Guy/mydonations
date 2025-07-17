@@ -30,6 +30,7 @@ def skyapi_authorize(request):
         'client_id': settings.BB_CLIENT_ID,
         'redirect_uri': redirect_uri,
         'state': state,
+        'environment_id': env_id,
 
     }
     if env_id:

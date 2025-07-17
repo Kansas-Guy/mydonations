@@ -23,8 +23,7 @@
 
         async function connectToSkyApi(identityToken, envID) {
           //Check if we hav token
-          const resp = await fetch('/skyapi/token', {credentials: 'include'
-          });
+          const resp = await fetch('/skyapi/token', {credentials: 'include'});
           if (resp.status === 200) {
             const { accessToken } = await resp.json();
             skyApiToken = accessToken;
@@ -48,8 +47,7 @@
 
           console.log('Fetching /skyapi/token');
           const tokenResp = await fetch('/skyapi/token', {
-            credentials: "include"
-          });
+            credentials: "include"});
 
           if (tokenResp.status === 200) {
             let { accessToken } = await resp.json();
