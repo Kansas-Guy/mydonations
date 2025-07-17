@@ -38,6 +38,9 @@
           });
           // 4) now your backend has exchanged the code and stored the token
         }
+
+        const connectBtn = document.getElementById('connect');
+
         connectBtn.addEventListener('click', () =>
           maybeAuthenticateWithSkyApi(identityToken, envid)
         );
@@ -46,7 +49,7 @@
         let skyApiToken = null;
 
         // 5) Wire up “Connect to Sky API” button
-        const connectBtn = document.getElementById('connect');
+
         connectBtn.addEventListener('click', connectToSkyApi);
 
         // 6) Popup + poll until closed, then grab the token from your backend:
