@@ -84,7 +84,7 @@ def skyapi_callback(request):
         '<h1>Token Exchange Complete</h1>'
         '<pre>{json.dumps(token_data, indent=2)}</pre>'
         '<button onclick="window.close()">Close</button>'   
-        # '<script>window.close();</script>'
+        '<script>window.close();</script>'
         '</body></html>'
     """)
 
