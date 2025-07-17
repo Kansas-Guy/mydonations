@@ -46,22 +46,17 @@
             }, 100);
           });
 
-          console.log(' Fetching /skyapi/token');
+          console.log('Fetching /skyapi/token');
           const tokenResp = await fetch('/skyapi/token', {
             credentials: "include"
-          })
+          });
 
-          if (!tokenResp.ok) {
-            const text = await tokenResp.text().catch(() => '<no body>');
-            console.error(
-                `/skyapi/token rturned ${tokenResp.status} ${tokenResp.statusText}`,
-                'body: ', text
-            );
-            throw new Error(`Sky API token fetch failed: ${tokenResp.status}`)
+          if (tokenResp.status === 200) {
+            let { accessToken } = await resp.json();
+            skyApiToken = accessToken;
+            return loadEvents();
           }
-          const { accessToken } = await tokenResp.json();
-          skyApiToken = accessToken;
-          await loadEvents();
+          throw new Error(`Sky Api token fetch failed: ${tokenResp.status}`);
         }
 
         connectBtn.addEventListener('click', () =>
