@@ -9,7 +9,7 @@
         args.ready({ showUI: true, title: 'Decline Event' });
         // —————————————————————————————
         // 2) SSO: Fetch the user‑identity token for your backend
-        const userIdentityToken = await client.getUserIdentityToken();
+        const identityToken = await client.getUserIdentityToken();
         const recordId = args.context.recordId;
         // envId lets your backend scope consent to the right BB environment
         const envid = args.envId;
@@ -17,10 +17,8 @@
         const SKY_OAUTH_CLIENT_ID   = '3b9c4ffd-ed8c-4682-9e23-43032fc886a5';
         const SKY_OAUTH_REDIRECT_URI = 'https://fhsufoundation.com/skyapi/oauth/callback';
 
-        await maybeAuthenticateWithSkyApi(identityToken, args.envId);
-
-        async function maybeAuthenticateWithSkyApi(userIdentityToken, envId) {
-  // 1) ask your backend if it already has a good token
+        async function maybeAuthenticateWithSkyApi(identityToken, envId) {
+          // 1) ask your backend if it already has a good token
           let resp = await fetch('/skyapi/token');
           if (resp.status === 200) return;
 
@@ -40,6 +38,8 @@
           });
           // 4) now your backend has exchanged the code and stored the token
         }
+
+        await maybeAuthenticateWithSkyApi(identityToken, args.envId);
 
         // 4) State for your SKY API token (once we fetch it)
         let skyApiToken = null;
