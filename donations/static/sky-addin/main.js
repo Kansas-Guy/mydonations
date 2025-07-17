@@ -24,14 +24,14 @@
         async function connectToSkyApi(identityToken, envID) {
           //Check if we have token
           console.log('Checking if token is available')
-          const resp = await fetch('/skyapi/token', {credentials: 'include'});
-          if (resp.status === 200) {
-            const { accessToken } = await resp.json();
-            skyApiToken = accessToken;
-            await loadEvents();
-          }
-          console.log('No token available')
-          console.log('Generating popup');
+          //const resp = await fetch('/skyapi/token', {credentials: 'include'});
+          //if (resp.status === 200) {
+          //  const { accessToken } = await resp.json();
+          //  skyApiToken = accessToken;
+          //  await loadEvents();
+         // }
+         // console.log('No token available')
+          //console.log('Generating popup');
 
           const popup = window.open(
               `/skyapi/authorize?token=${identityToken}&envid=${envID}`,

@@ -1,3 +1,4 @@
+import json
 import uuid
 import time
 import base64
@@ -78,14 +79,14 @@ def skyapi_callback(request):
     request.session["sky_token_expires"] = time.time() + expires_in
 
     # Render a tiny HTML page that closes the popup
-    return HttpResponse(
+    return HttpResponse(f"""
         '<!DOCTYPE html><html><body>'
         '<h1>Token Exchange Complete</h1>'
-        '<pre>{token_data}</pre>'
+        '<pre>{json.dumps(token_data, indent=2)}</pre>'
         '<button onclick="window.close()">Close</button>'   
         # '<script>window.close();</script>'
         '</body></html>'
-    )
+    """)
 
 def skyapi_token(request):
     token = request.session.get('sky_api_token')
