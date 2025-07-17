@@ -11,6 +11,6 @@ urlpatterns = [
     path('test-email/', views.test_send_email, name='test_send_email'),
     path('sky-addin', TemplateView.as_view(template_name='sky-addin/index.html')),
     path('skyapi/authorize', skyapi_authorize, name='skyapi_authorize'),
-    path('skyapi/oath/callback', skyapi_callback, name='skyapi_callback'),
+    path('skyapi/oauth/callback', skyapi_callback, name='skyapi_callback'),
     path('skyapi/token', skyapi_token, name='sky_token'),
 ]

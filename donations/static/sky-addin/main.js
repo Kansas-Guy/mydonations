@@ -38,8 +38,9 @@
           });
           // 4) now your backend has exchanged the code and stored the token
         }
-
-        await maybeAuthenticateWithSkyApi(identityToken, args.envId);
+        connectBtn.addEventListener('click', () =>
+          maybeAuthenticateWithSkyApi(identityToken, envid)
+        );
 
         // 4) State for your SKY API token (once we fetch it)
         let skyApiToken = null;
