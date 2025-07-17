@@ -82,6 +82,9 @@ def skyapi_callback(request):
     # Render a tiny HTML page that closes the popup
     return HttpResponse(
         '<!DOCTYPE html><html><body>'
+        '<h1>Token Exchange Complete</h1>'
+        '<pre>{token_data}</pre>'
+        '<button onclick="window.close()">Close</button>'   
         # '<script>window.close();</script>'
         '</body></html>'
     )
