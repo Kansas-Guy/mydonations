@@ -72,11 +72,8 @@ def skyapi_callback(request):
     token_resp.raise_for_status()
     token_data = token_resp.json()
 
-    access_token = token_data['access_token']
-    expires_in = token_data.get("expires_in", 1800)
-
-    request.session["sky_api_token"] = access_token
-    request.session["sky_token_expires"] = time.time() + expires_in
+    request.session["sky_api_token"] = token_data['access_token']
+    request.session["sky_token_expires"] = time.time() + token_data.get("expires_in", 3600)
 
     # '<script>window.close();</script>'
     # Render a tiny HTML page that closes the popup
@@ -94,6 +91,6 @@ def skyapi_token(request):
     expires = request.session.get('sky_token_expires', 0)
 
     if not token or expires < time.time():
-        return HttpResponse('Unauthorized', status=401)
+        return JsonResponse({'error': 'no token'}, status=401)
     return JsonResponse({ "accessToken": token })
 

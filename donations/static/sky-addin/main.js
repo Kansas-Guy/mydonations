@@ -24,11 +24,11 @@
         async function connectToSkyApi(identityToken, envID) {
           //Check if we have token
           console.log('Checking if token is available')
-          const resp = await fetch('/skyapi/token', {credentials: 'include'});
-          if (resp.status === 200) {
-            const { accessToken } = await resp.json();
+          let resp = await fetch('/skyapi/token', {credentials: 'include'});
+          if (resp.ok) {
+            let { accessToken } = await resp.json();
             skyApiToken = accessToken;
-            await loadEvents();
+            return loadEvents();
           }
           console.log('No token available')
           console.log('Generating popup');
@@ -48,16 +48,10 @@
             }, 100);
           });
 
-          console.log('Fetching /skyapi/token');
-          const tokenResp = await fetch('/skyapi/token', {
-            credentials: "include"});
-          console.log(`${tokenResp.status}`)
-          if (tokenResp.status === 200) {
-            let { accessToken } = await resp.json();
-            skyApiToken = accessToken;
-            return loadEvents();
-          }
-          throw new Error(`Sky Api token fetch failed: ${tokenResp.status}`);
+          resp = await fetch('skyapi/token', { credentials: 'include'});
+          if (!resp.ok) throw new Error(`Sky API token fetch failed: ${resp.status}`);
+          ({ accessToken: skyApiToken } = await resp.json());
+          return loadEvents();
         }
 
         connectBtn.addEventListener('click', () =>
