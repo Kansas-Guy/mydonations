@@ -82,7 +82,7 @@ def skyapi_callback(request):
     # Render a tiny HTML page that closes the popup
     return HttpResponse(
         '<!DOCTYPE html><html><body>'
-        '<script>window.close();</script>'
+        # '<script>window.close();</script>'
         '</body></html>'
     )
 

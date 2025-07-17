@@ -30,6 +30,8 @@
             await loadEvents();
           }
 
+          console.log('Generating popup');
+
           const popup = window.open(
               `/skyapi/authorize?token=${identityToken}&envid=${envID}`,
               '_blank',
