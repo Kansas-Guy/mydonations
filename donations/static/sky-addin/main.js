@@ -61,7 +61,6 @@
         }
 
         connectBtn.addEventListener('click', () =>
-            console.log('connect button clicked')
           connectToSkyApi(identityToken, envid)
         );
 
