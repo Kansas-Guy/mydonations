@@ -48,7 +48,7 @@
             }, 100);
           });
 
-          resp = await fetch('skyapi/token', { credentials: 'include'});
+          resp = await fetch('/skyapi/token', { credentials: 'include'});
           if (!resp.ok) throw new Error(`Sky API token fetch failed: ${resp.status}`);
           ({ accessToken: skyApiToken } = await resp.json());
           return loadEvents();
