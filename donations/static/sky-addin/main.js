@@ -41,16 +41,15 @@
 
         const connectBtn = document.getElementById('connect');
 
-        connectBtn.addEventListener('click', () =>
-          maybeAuthenticateWithSkyApi(identityToken, envid)
-        );
+        connectBtn.addEventListener('click', async () => {
+          await maybeAuthenticateWithSkyApi(identityToken, envid);
+          connectToSkyApi(identityToken, envid);
+        });
 
         // 4) State for your SKY API token (once we fetch it)
         let skyApiToken = null;
 
-        // 5) Wire up “Connect to Sky API” button
 
-        connectBtn.addEventListener('click', connectToSkyApi);
 
         // 6) Popup + poll until closed, then grab the token from your backend:
          function connectToSkyApi() {
@@ -80,7 +79,7 @@
               try {
                 // backend should read the code & state, swap it for an access token, then return it here
                 const resp = await fetch(
-                  `/skyapi/token?token=${encodeURIComponent(userIdentityToken)}`,
+                  `/skyapi/token?token=${encodeURIComponent(identityToken)}`,
                   { credentials: 'include' }
                 );
                 const { accessToken } = await resp.json();
