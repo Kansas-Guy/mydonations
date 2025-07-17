@@ -4,7 +4,7 @@ import base64
 import requests
 from django.conf import settings
 from django.shortcuts import redirect, render
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.urls import path
 
 # ===== Views =====
@@ -73,8 +73,11 @@ def skyapi_callback(request):
     token_resp.raise_for_status()
     token_data = token_resp.json()
 
-    # Persist token_data somewhere: session, cache, or your DB
-    request.session['skyapi_token_data'] = token_data
+    access_token = token_data['access_token']
+    expires_in = token_data.get("expires_in", 1800)
+
+    request.session["sky_api_token"] = access_token
+    request.session["sky_token_expires"] = time.time() + expires_in
 
     # Render a tiny HTML page that closes the popup
     return HttpResponse(
@@ -86,7 +89,8 @@ def skyapi_callback(request):
 def skyapi_token(request):
     token = request.session.get('sky_api_token')
     expires = request.session.get('sky_token_expires', 0)
+
     if not token or expires < time.time():
         return HttpResponse('Unauthorized', status=401)
-    return HttpResponse(token)
+    return JsonResponse({ "accessToken": token })
 

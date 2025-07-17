@@ -132,9 +132,6 @@
               statusEl.textContent = 'Error declining attendance';
             }
           });
-
-        // 10) Optionally auto‑connect if your backend has already set a cookie/session:
-        // connectToSkyApi();
       },
     },
   });
