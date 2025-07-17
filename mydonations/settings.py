@@ -18,7 +18,9 @@ env.read_env(os.path.join(BASE_DIR, '.env'))
 SECRET_KEY = env('SECRET_KEY')  # Must be set in .env
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = ['https://mydonations-7bb26315ee30.herokuapp.com/','127.0.0.1']
+ALLOWED_HOSTS = ['mydonations-7bb26315ee30.herokuapp.com',
+                 '127.0.0.1',
+                 'localhost,']
 
 DATABASES = {
     'default': dj_database_url.config(default=env('DATABASE_URL'))
