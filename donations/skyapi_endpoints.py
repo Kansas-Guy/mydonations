@@ -29,15 +29,13 @@ def skyapi_authorize(request):
         'response_type': 'code',
         'client_id': settings.BB_CLIENT_ID,
         'redirect_uri': redirect_uri,
-        'state': state,
+        'state': request.session['skyapi_state'],
         'environment_id': env_id,
 
     }
-    if env_id:
-        params['environment_id'] = env_id
 
     from urllib.parse import urlencode
-    auth_url = f"https://oauth2.sky.blackbaud.com/authorization?{urlencode(params)}"
+    auth_url = f"https://app.blackbaud.com/oauth/authorize?{urlencode(params)}"
 
     return redirect(auth_url)
 
