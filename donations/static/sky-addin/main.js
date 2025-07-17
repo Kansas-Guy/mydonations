@@ -15,7 +15,7 @@
         const envid = args.envId;
 
         const SKY_OAUTH_CLIENT_ID   = '3b9c4ffd-ed8c-4682-9e23-43032fc886a5';
-        const SKY_OAUTH_REDIRECT_URI = 'https://fhsufoundation.com/skyapi/oauth/callback';
+        const SKY_OAUTH_REDIRECT_URI = 'https://mydonations-7bb26315ee30.herokuapp.com/skyapi/oauth/callback';
 
         async function maybeAuthenticateWithSkyApi(identityToken, envId) {
           // 1) ask your backend if it already has a good token
