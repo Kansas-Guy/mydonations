@@ -46,11 +46,19 @@
             }, 100);
           });
 
+          console.log(' Fetching /skyapi/token');
           const tokenResp = await fetch('/skyapi/token', {
             credentials: "include"
           })
 
-          if (!tokenResp.ok) throw new Error("Couldn't fetch Sky API token");
+          if (!tokenResp.ok) {
+            const text = await tokenResp.text().catch(() => '<no body>');
+            console.error(
+                `/skyapi/token rturned ${tokenResp.status} ${tokenResp.statusText}`,
+                'body: ', text
+            );
+            throw new Error(`Sky API token fetch failed: ${tokenResp.status}`)
+          }
           const { accessToken } = await tokenResp.json();
           skyApiToken = accessToken;
           await loadEvents();
