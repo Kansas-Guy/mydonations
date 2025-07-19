@@ -3,10 +3,13 @@ import uuid
 import time
 import base64
 import requests
+import logging
 from django.conf import settings
 from django.shortcuts import redirect, render
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.urls import path
+
+logger = logging.getLogger(__name__)
 
 # ===== Views =====
 def skyapi_authorize(request):
@@ -46,6 +49,9 @@ def skyapi_callback(request):
     Handle the OAuth callback: validate state, exchange code for tokens,
     then close the popup.
     """
+    code = request.GET.get('code')
+    state = request.GET.get('state')
+    logger.info(f"[skyapi_callback] code={code!r}, state={state!r}, session_stat={request.session.get('skyapi_state')!r}")
     error = request.GET.get('error')
     if error:
         return HttpResponse(f"<h1>OAuth Error</h1><p>{error}</p>")
@@ -75,6 +81,9 @@ def skyapi_callback(request):
     request.session["sky_api_token"] = token_data['access_token']
     request.session["sky_token_expires"] = time.time() + token_data.get("expires_in", 3600)
 
+    logger.info("[skyapi_callback] stored access_token (first 10 chars)=%r expires=%r",
+                token_data["access_token"], request.session["sky_token_expires"])
+
     # '<script>window.close();</script>'
     # Render a tiny HTML page that closes the popup
     return HttpResponse(f"""
@@ -82,7 +91,11 @@ def skyapi_callback(request):
         '<h1>Token Exchange Complete</h1>'
         '<pre>{json.dumps(token_data, indent=2)}</pre>'
         '<button onclick="window.close()">Close</button>'   
-        
+        '<script>
+            const data = {json.dumps(token_data)};
+            console.log("got Sky Api token", data);
+            window.opener.postMessage(data, window.origin);
+        </script>'
         '</body></html>'
     """)
 

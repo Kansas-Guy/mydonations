@@ -58,6 +58,13 @@
           connectToSkyApi(identityToken, envid)
         );
 
+        window.addEventListener("messag", e => {
+          if (e.origin !== window.location.origin) return;
+          console.log(" message received from popup:", e.data);
+          skyApiToken = e.data.access_token;
+          loadEvents();
+        });
+
         // 7) Helper to call the SKY API once we have skyApiToken
         const SUBSCRIPTION_KEY = '7f87e63978a746bfbec6783f4e46207b';
         async function skyFetch(path, opts = {}) {
