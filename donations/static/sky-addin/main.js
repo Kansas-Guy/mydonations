@@ -58,7 +58,7 @@
           connectToSkyApi(identityToken, envid)
         );
 
-        window.addEventListener("messag", e => {
+        window.addEventListener("message", e => {
           if (e.origin !== window.location.origin) return;
           console.log(" message received from popup:", e.data);
           skyApiToken = e.data.access_token;

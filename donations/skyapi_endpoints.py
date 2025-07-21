@@ -87,16 +87,16 @@ def skyapi_callback(request):
     # '<script>window.close();</script>'
     # Render a tiny HTML page that closes the popup
     return HttpResponse(f"""
-        '<!DOCTYPE html><html><body>'
-        '<h1>Token Exchange Complete</h1>'
-        '<pre>{json.dumps(token_data, indent=2)}</pre>'
-        '<button onclick="window.close()">Close</button>'   
-        '<script>
+        <!DOCTYPE html><html><body>
+        <h1>Token Exchange Complete</h1>
+        <pre>{json.dumps(token_data, indent=2)}</pre>
+        <button onclick="window.close()">Close</button>   
+        <script>
             const data = {json.dumps(token_data)};
             console.log("got Sky Api token", data);
-            window.opener.postMessage(data, window.origin);
-        </script>'
-        '</body></html>'
+            window.opener.postMessage(data, "*");
+        </script>
+        </body></html>
     """)
 
 def skyapi_token(request):
