@@ -26,19 +26,19 @@
             `/skyapi/authorize?token=${encodeURIComponent(identityToken)}&envid=${encodeURIComponent(envid)}`,
             "_blank","toolbar=0,status=0,width=600,height=500"
           );
-          if (!popup) console.error("[main] popup was blocked!");
-        });
+          const iv = setInterval(async () => {
+            if (popup.closed) {
+              clearInterval(iv);
+              const resp = await fetch('/skyapi/token', { credentials: 'include' });
+              if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+              const { accessToken } = await resp.json();
+              skyApiToken = accessToken;
+              await loadEvents();
+            }
+          }, 100);
+          });
 
-        const iv = setInterval(async () => {
-          if (popup.closed) {
-            clearInterval(iv);
-            const resp = await fetch('/skyapi/token', { credentials: 'include' });
-            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-            const { accessToken } = await resp.json();
-            skyApiToken = accessToken;
-            await loadEvents();
-          }
-        }, 100);
+
 
         // 4) helper to load events once we have skyApiToken
         async function skyFetch(path, opts={}) {
