@@ -15,16 +15,17 @@
     }
   ],
   "supportsSSO": true,
-"scopes": [
-   "eventapi.events.read",
-   "eventapi.participants.create"
- ],
-"oauth2": {
-  "clientId":   "3b9c4ffd-ed8c-4682-9e23-43032fc886a5",
-  "authorizeUrl": "https://oauth2.sky.blackbaud.com/connect/authorize",
-  "tokenUrl":     "https://oauth2.sky.blackbaud.com/connect/token",
-   "scopes":     [
-   "eventapi.events.read",
-   "eventapi.participants.create"
-   ]
- }
+  "scopes": [
+    "eventapi.events.read",
+    "eventapi.participants.create"
+  ],
+  "oauth2": {
+    "clientId": "3b9c4ffd-ed8c-4682-9e23-43032fc886a5",
+    "authorizeUrl": "https://oauth2.sky.blackbaud.com/connect/authorize",
+    "tokenUrl": "https://oauth2.sky.blackbaud.com/connect/token",
+    "scopes": [
+      "eventapi.events.read",
+      "eventapi.participants.create"
+    ]
+  }
+}

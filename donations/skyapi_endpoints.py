@@ -13,10 +13,7 @@ logger = logging.getLogger(__name__)
 
 # ===== Views =====
 def skyapi_authorize(request):
-    """
-    Kick off the SKY API OAuth flow by generating a state and redirecting
-    the user to Blackbaud's authorization endpoint.
-    """
+    logger.info("[authorize] in, GET params=%r", request.GET.dict())
     # 1) Generate CSRF-protection state
     state = uuid.uuid4().hex
     request.session['skyapi_state'] = state
@@ -39,72 +36,63 @@ def skyapi_authorize(request):
     }
 
     from urllib.parse import urlencode
-    auth_url = f"https://app.blackbaud.com/oauth/authorize?{urlencode(params)}"
+    auth_url = "https://oauth2.sky.blackbaud.com/connect/authorize?" + urlencode(params)
+    logger.info("[authorize] redirecting to %s", auth_url)
 
     return redirect(auth_url)
 
 
 def skyapi_callback(request):
-    """
-    Handle the OAuth callback: validate state, exchange code for tokens,
-    then close the popup.
-    """
-    code = request.GET.get('code')
-    state = request.GET.get('state')
-    logger.info(f"[skyapi_callback] code={code!r}, state={state!r}, session_stat={request.session.get('skyapi_state')!r}")
-    error = request.GET.get('error')
-    if error:
-        return HttpResponse(f"<h1>OAuth Error</h1><p>{error}</p>")
-
-    code = request.GET.get('code')
+    logger.info("[callback] query params=%r", request.GET.dict())
+    code  = request.GET.get('code')
     state = request.GET.get('state')
     saved = request.session.get('skyapi_state')
-    if not code or not state or state != saved:
-        return HttpResponseBadRequest('Invalid OAuth state or missing code.')
+    logger.info("[callback] code=%r, state=%r, saved_state=%r", code, state, saved)
 
-    # Exchange the authorization code for tokens
-    creds = f"{settings.BB_CLIENT_ID}:{settings.BB_CLIENT_SECRET}".encode()
+    if not code or state != saved:
+      logger.error("[callback] state mismatch or missing code")
+      return HttpResponseBadRequest("Invalid OAuth state or missing code")
+
+    # exchange
+    creds     = f"{settings.BB_CLIENT_ID}:{settings.BB_CLIENT_SECRET}".encode()
     b64_creds = base64.b64encode(creds).decode()
-    headers = {
-        'Authorization': f'Basic {b64_creds}',
-        'Content-Type': 'application/x-www-form-urlencoded'
-    }
-    payload = {
-        'grant_type': 'authorization_code',
-        'code': code,
-        'redirect_uri': settings.BB_REDIRECT_URI,
-    }
+    headers   = {'Authorization': f"Basic {b64_creds}",
+                 'Content-Type':  'application/x-www-form-urlencoded'}
+    payload   = {'grant_type': 'authorization_code',
+                 'code':        code,
+                 'redirect_uri': settings.BB_REDIRECT_URI}
+
+    logger.info("[callback] POST %s with payload %r", settings.BB_TOKEN_URL, payload)
     token_resp = requests.post(settings.BB_TOKEN_URL, data=payload, headers=headers)
     token_resp.raise_for_status()
     token_data = token_resp.json()
+    logger.info("[callback] token_data received (first 20 chars)=%r", token_data['access_token'][:20])
 
-    request.session["sky_api_token"] = token_data['access_token']
-    request.session["sky_token_expires"] = time.time() + token_data.get("expires_in", 3600)
+    request.session['sky_api_token']     = token_data['access_token']
+    request.session['sky_token_expires'] = time.time() + token_data['expires_in']
 
-    logger.info("[skyapi_callback] stored access_token (first 10 chars)=%r expires=%r",
-                token_data["access_token"], request.session["sky_token_expires"])
-
-    # '<script>window.close();</script>'
-    # Render a tiny HTML page that closes the popup
-    return HttpResponse(f"""
-        <!DOCTYPE html><html><body> 
-        <script>
-            localStorage.setItem(
-            'skyapi_token_data',
-            JSON.stringify({json.dumps(token_data)})
-            );
-            console.log('[callback] wrote skyapi_token_data',
-            localStorage.getItem('skyapi_token_data'));
-            setTimeout(() => window.close(), 5000);
-        </script>
-        </body></html>
-    """, content_type="text/html")
+    # close popup
+    return HttpResponse("""
+      <!DOCTYPE html><html><body>
+      <script>
+        // tell the opener “here’s your token”
+        window.opener.postMessage(
+          { accessToken: "%s" },
+          "%s"
+        );
+        window.close();
+      </script>
+      </body></html>
+    """ % (token_data['access_token'], request.scheme + "://" + request.get_host()))
 
 def skyapi_token(request):
-    token = request.session.get('sky_api_token')
+    token   = request.session.get('sky_api_token')
     expires = request.session.get('sky_token_expires', 0)
+    logger.info("[token] session token=%r expires=%r", token and token[:10], expires)
 
     if not token or expires < time.time():
-        return JsonResponse({'error': 'no token'}, status=401)
-    return JsonResponse({ "accessToken": token })
+      logger.warning("[token] no valid token in session")
+      return JsonResponse({'error': 'no token'}, status=401)
+
+    return JsonResponse({'accessToken': token})
 
