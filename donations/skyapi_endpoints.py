@@ -36,7 +36,7 @@ def skyapi_authorize(request):
     }
 
     from urllib.parse import urlencode
-    auth_url = f"https://app.blackbaud.com/oauth/authorize?{urlencode(params)}"
+    auth_url = f"https://oauth2.sky.blackbaud.com/connect/authorize?{urlencode(params)}"
     logger.info("[authorize] redirecting to %s", auth_url)
 
     return redirect(auth_url)
