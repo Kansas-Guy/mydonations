@@ -48,22 +48,17 @@
             }, 100);
           });
 
-          resp = await fetch('/skyapi/token', { credentials: 'include'});
-          if (!resp.ok) throw new Error(`Sky API token fetch failed: ${resp.status}`);
-          ({ accessToken: skyApiToken } = await resp.json());
+          const raw = localStorage.getItem('skyapi_token_data');
+          if (!raw) throw new Error('No token in localStorage!');
+          const { access_token } = JSON.parse(raw);
+          localStorage.removeItem('skyapi_token_data');
+          skyApiToken = access_token;
           return loadEvents();
         }
 
         connectBtn.addEventListener('click', () =>
           connectToSkyApi(identityToken, envid)
         );
-
-        window.addEventListener("message", e => {
-          if (e.origin !== window.location.origin) return;
-          console.log(" message received from popup:", e.data);
-          skyApiToken = e.data.access_token;
-          loadEvents();
-        });
 
         // 7) Helper to call the SKY API once we have skyApiToken
         const SUBSCRIPTION_KEY = '7f87e63978a746bfbec6783f4e46207b';
