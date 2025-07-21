@@ -75,15 +75,10 @@ def skyapi_callback(request):
     return HttpResponse("""
       <!DOCTYPE html><html><body>
       <script>
-        // tell the opener “here’s your token”
-        window.opener.postMessage(
-          { accessToken: "%s" },
-          "%s"
-        );
         window.close();
       </script>
       </body></html>
-    """ % (token_data['access_token'], request.scheme + "://" + request.get_host()))
+    """, content_type='text/html',)
 
 def skyapi_token(request):
     token   = request.session.get('sky_api_token')
