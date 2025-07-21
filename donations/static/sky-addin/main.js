@@ -16,54 +16,45 @@
 
         const SKY_OAUTH_CLIENT_ID   = '3b9c4ffd-ed8c-4682-9e23-43032fc886a5';
         const SKY_OAUTH_REDIRECT_URI = 'https://mydonations-7bb26315ee30.herokuapp.com/skyapi/oauth/callback';
+        const SUBSCRIPTION_KEY = '7f87e63978a746bfbec6783f4e46207b';
 
-        const connectBtn = document.getElementById('connect');
-        // 4) State for your SKY API token (once we fetch it)
         let skyApiToken = null;
 
-        async function connectToSkyApi(identityToken, envID) {
-          //Check if we have token
-          console.log('[main] before open - LS keys:', Object.keys(localStorage));
-          console.log('[main] before open - existing token:', localStorage.getItem('skyapi_token_data'));
-         // let resp = await fetch('/skyapi/token', {credentials: 'include'});
-         // if (resp.ok) {
-         //   let { accessToken } = await resp.json();
-          //  skyApiToken = accessToken;
-         //   return loadEvents();
-         // }
-
+        const connectBtn = document.getElementById('connect');
+        connectBtn.addEventListener('click', () => {
+          // — open popup synchronously inside the click handler —
+          const authUrl = `/skyapi/authorize?token=${encodeURIComponent(identityToken)}&envid=${encodeURIComponent(envid)}`;
           const popup = window.open(
-              `/skyapi/authorize?token=${identityToken}&envid=${envID}`,
-              '_blank',
-              'toolbar=0,status=0,width=600,height=500'
+            authUrl,
+            '_blank',
+            'toolbar=0,status=0,width=600,height=500'
           );
+          if (!popup) {
+            console.error('Popup blocked by browser');
+            return;
+          }
+          console.log('popup returned →', popup);
 
-          await new Promise(resolve => {
-            const iv = setInterval(() => {
-              if (popup.closed) {
-                clearInterval(iv);
-                resolve();
+          // — poll until it closes —
+          const iv = setInterval(async () => {
+            if (popup.closed) {
+              clearInterval(iv);
+              try {
+                const resp = await fetch('/skyapi/token', { credentials: 'include' });
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                const { accessToken } = await resp.json();
+                skyApiToken = accessToken;
+                loadEvents();
+              } catch (err) {
+                console.error('Failed to fetch SKY API token:', err);
+                document.getElementById('status').textContent = 'Unable to connect to SKY API';
               }
-            }, 100);
-          });
-
-          console.log('[main] after popup closd - LS keys:', Object.keys(localStorage));
-          const raw = localStorage.getItem('skyapi_token_data');
-          console.log('[main] after popup closed - raw', raw);
-
-          if (!raw) throw new Error('No token in localStorage!');
-          const { access_token } = JSON.parse(raw);
-          localStorage.removeItem('skyapi_token_data');
-          skyApiToken = access_token;
-          return loadEvents();
-        }
-
-        connectBtn.addEventListener('click', () =>
-          connectToSkyApi(identityToken, envid)
-        );
+            }
+          }, 100);
+        });
 
         // 7) Helper to call the SKY API once we have skyApiToken
-        const SUBSCRIPTION_KEY = '7f87e63978a746bfbec6783f4e46207b';
+
         async function skyFetch(path, opts = {}) {
           if (!skyApiToken) {
             throw new Error('Missing SKY API token – call connectToSkyApi() first.');
