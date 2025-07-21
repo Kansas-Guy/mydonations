@@ -23,15 +23,14 @@
 
         async function connectToSkyApi(identityToken, envID) {
           //Check if we have token
-          console.log('Checking if token is available')
-          let resp = await fetch('/skyapi/token', {credentials: 'include'});
-          if (resp.ok) {
-            let { accessToken } = await resp.json();
-            skyApiToken = accessToken;
-            return loadEvents();
-          }
-          console.log('No token available')
-          console.log('Generating popup');
+          console.log('[main] before open - LS keys:', Object.keys(localStorage));
+          console.log('[main] before open - existing token:', localStorage.getItem('skyapi_token_data'));
+         // let resp = await fetch('/skyapi/token', {credentials: 'include'});
+         // if (resp.ok) {
+         //   let { accessToken } = await resp.json();
+          //  skyApiToken = accessToken;
+         //   return loadEvents();
+         // }
 
           const popup = window.open(
               `/skyapi/authorize?token=${identityToken}&envid=${envID}`,
@@ -48,7 +47,10 @@
             }, 100);
           });
 
+          console.log('[main] after popup closd - LS keys:', Object.keys(localStorage));
           const raw = localStorage.getItem('skyapi_token_data');
+          console.log('[main] after popup closed - raw', raw);
+
           if (!raw) throw new Error('No token in localStorage!');
           const { access_token } = JSON.parse(raw);
           localStorage.removeItem('skyapi_token_data');

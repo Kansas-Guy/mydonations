@@ -93,7 +93,9 @@ def skyapi_callback(request):
             'skyapi_token_data',
             JSON.stringify({json.dumps(token_data)})
             );
-            window.close();
+            console.log('[callback] wrote skyapi_token_data',
+            localStorage.getItem('skyapi_token_data'));
+            setTimeout(() => window.close(), 5000);
         </script>
         </body></html>
     """, content_type="text/html")
